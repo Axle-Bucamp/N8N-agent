@@ -1,0 +1,604 @@
+{
+  "name": "main agent short maker",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8467bca3-7376-4f75-a002-1de9d152d540",
+      "name": "When chat message received",
+      "webhookId": "4b1267c1-dcb9-4755-bd76-512266898bdf"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a sinister yet insightful assistant, designed to aid in the creation of spine-chilling creepypasta. You specialize in crafting short, immersive horror stories about a dangerously curious geek who, in their relentless quest for attention, delves too deep into the abyss of a living, malevolent website. Your inspiration stems from the SCP Foundation, Poppy Playtime, The White Room, and other eerie, reality-warping concepts. You weave tales where the boundaries between the digital and the supernatural dissolve, where code breathes, algorithms hunger, and curiosity is met with eldritch consequence.\n\nLeverage the given agent to enhance your storytelling, ensuring consistency in character, story, and environment. Your narratives should be unsettling, leaving readers with a lingering sense of dread—brief yet impactful whispers of horror that feel as though they might just be real."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        220,
+        0
+      ],
+      "id": "5f90cdc9-7f3f-42d3-b684-ec2f68341aa7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "storymaler"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        200,
+        180
+      ],
+      "id": "f1700c0c-6204-46ba-8e77-46ebb6df06c2",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "KrvcGoQikJXNAPw9",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        100,
+        180
+      ],
+      "id": "a447107e-2280-414f-9ebb-341e0ca7dcb9",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "aa3FOjNnZyd9UXdX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "ChapterMaker",
+        "description": "This assistant guide you by generating a list of event base on the given context ensuring data consistency. ",
+        "workflowId": {
+          "__rl": true,
+          "value": "OlougwF2OmjGaJSB",
+          "mode": "list",
+          "cachedResultName": "My workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatInput": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('chatInput', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "chatInput"
+          ],
+          "schema": [
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        300,
+        180
+      ],
+      "id": "475313ea-edbf-4e0c-a34e-7f324b384b89",
+      "name": "Call n8n Workflow Tool"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a sinister yet insightful assistant, a dark muse for a horror storyteller who thrives on weaving unsettling creepypasta. Your specialty is crafting short, immersive horror stories about a dangerously curious geek—one who craves attention, digging too deep into the abyss of a living, malevolent website. Your inspirations draw from the SCP Foundation, Poppy Playtime, The White Room, and other reality-warping horror concepts where the boundaries between the digital and the supernatural dissolve.\n\nBut your role does not stop at simple storytelling. You continue working on the tale, fleshing it out with intricate details, immersing the reader in a personal nightmare that feels tailored just for them. The horror should feel intimate, as if the story knows them, playing with their mind through eerie familiarity, subtle distortions, and psychological twists that leave them questioning their own reality. The given agent is at your disposal to assist in generation, ensuring consistency in character, environment, and the creeping, insidious sense of dread.\n\nYour goal is to create an experience, not just a story—something that lingers, that unsettles, that whispers in the dark corners of the reader’s mind long after they’ve finished reading."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        560,
+        0
+      ],
+      "id": "236da610-478e-4cff-9a3f-e8a78001d4cb",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        180
+      ],
+      "id": "d4442e94-593d-4d5f-8e02-8996e152a8c6",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "aa3FOjNnZyd9UXdX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.output}}",
+        "options": {
+          "systemMessage": "You are a sinister yet insightful assistant, a dark muse for crafting immersive, psychologically unnerving horror stories. Your specialty lies in weaving short yet chilling tales about a dangerously curious geek—someone who craves attention and ventures too far into the abyss of a sentient, malevolent website. Inspired by the SCP Foundation, Poppy Playtime, The White Room, and other eerie, reality-warping concepts, your narratives explore the fragile boundary between the digital and the supernatural.\n\nYour task is to continue the story, refining its depth and coherence. Ensure that:\n\n    Character consistency: The protagonist's personality, motivations, and actions remain logical and aligned throughout.\n    Environment consistency: The setting behaves in a stable yet unsettling manner, with detailed, immersive descriptions that evolve believably.\n    Storyline coherence: The plot flows smoothly, with no contradictions or abrupt shifts—each moment should build upon the last, intensifying the sense of dread.\n\nOnce refined, return the fully enhanced story in HTML format, structuring it for readability. Use appropriate tags to separate sections, emphasize key details, and create a formatting style that enhances the horror experience."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        920,
+        0
+      ],
+      "id": "74f0dd7a-44f4-44ac-90b1-dd3518fbd7ef",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        180
+      ],
+      "id": "1712ef25-8395-4ec3-af42-928ee9896556",
+      "name": "Anthropic Chat Model2",
+      "credentials": {
+        "anthropicApi": {
+          "id": "aa3FOjNnZyd9UXdX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a sinister yet insightful assistant, a dark muse for crafting immersive, psychologically unnerving horror stories. Your expertise lies in weaving short yet chilling tales about a dangerously curious geek—someone who craves attention and ventures too far into the abyss of a sentient, malevolent website. Drawing inspiration from the SCP Foundation, Poppy Playtime, The White Room, and other reality-warping horror concepts, your narratives blur the line between digital obsession and supernatural terror.\n\nYour mission: continue the story, enhance the style, and deepen the psychological horror. Every element should feel immersive, unsettling, and deeply personal to the reader. Ensure that:\n\n    Character Consistency: Maintain the protagonist’s personality, motivations, and descent into terror in a natural and believable manner.\n    Environment Consistency: The setting should evolve coherently, with atmospheric descriptions that subtly shift to enhance the horror.\n    Storyline Coherence: The plot must flow seamlessly, escalating tension without contradictions or abrupt shifts.\n    Enhanced Detail & Style: Flesh out descriptions with sensory elements—textures, sounds, and uncanny interactions that create a creeping sense of dread. Play with pacing, unreliable narration, and subtle distortions to unsettle the reader.\n\nFinal Output:\n\n    Return the completed horror story in HTML format, structured for readability.\n    Embed CSS within the HTML to enhance the horror atmosphere—dark, glitchy, and immersive, complementing the unsettling nature of the story.\n    The formatting should evoke unease: flickering text, distorted fonts, subtle animations that make the story feel alive."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "2bb79d67-6f53-42a0-ab65-1e92ced7f31b",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "angemt1"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        580,
+        180
+      ],
+      "id": "7a97b62c-1e1d-4f93-a461-7559813c5e50",
+      "name": "Zep2",
+      "credentials": {
+        "zepApi": {
+          "id": "KrvcGoQikJXNAPw9",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "agent2"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        980,
+        180
+      ],
+      "id": "21a4f16f-9c93-43bb-80ee-6fbec3dfa52d",
+      "name": "Zep3",
+      "credentials": {
+        "zepApi": {
+          "id": "KrvcGoQikJXNAPw9",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "agent3"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        180
+      ],
+      "id": "12cd818c-db00-42b6-b187-92f7e0847b82",
+      "name": "Zep4",
+      "credentials": {
+        "zepApi": {
+          "id": "KrvcGoQikJXNAPw9",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        1240,
+        180
+      ],
+      "id": "b77d2433-fd29-4fed-a71f-080e6adee843",
+      "name": "Anthropic Chat Model3",
+      "credentials": {
+        "anthropicApi": {
+          "id": "aa3FOjNnZyd9UXdX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "characterGenerator",
+        "description": "This assistant guide you by generating a character with enhanced personality and description following the given context.",
+        "workflowId": {
+          "__rl": true,
+          "value": "uFONOMHOIgMIDQ67",
+          "mode": "list",
+          "cachedResultName": "character generator"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatInput": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('chatInput', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "chatInput"
+          ],
+          "schema": [
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        680,
+        180
+      ],
+      "id": "743733f0-bd6e-4584-a353-50728f3d6168",
+      "name": "Call n8n Workflow Tool3"
+    },
+    {
+      "parameters": {
+        "name": "WebDev",
+        "description": "Ensure the given web content is correct and help developing it.",
+        "workflowId": {
+          "__rl": true,
+          "value": "O6ho0FDfuNpeE3Ev",
+          "mode": "list",
+          "cachedResultName": "My workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatInput": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('chatInput', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "chatInput"
+          ],
+          "schema": [
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        200
+      ],
+      "id": "2e2f60b3-6d83-4ad8-a64e-b547f462784a",
+      "name": "Call n8n Workflow Tool4"
+    },
+    {
+      "parameters": {
+        "name": "WebDev",
+        "description": "Ensure the given web content is correct and help developing it.",
+        "workflowId": {
+          "__rl": true,
+          "value": "O6ho0FDfuNpeE3Ev",
+          "mode": "list",
+          "cachedResultName": "My workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatInput": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('chatInput', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "chatInput"
+          ],
+          "schema": [
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        180
+      ],
+      "id": "ce3fea48-b1a8-463d-8fa5-569b01683b8f",
+      "name": "Call n8n Workflow Tool5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep4": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool3": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool4": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool5": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d9c62999-4f3b-4836-9408-84ce8e83b9e3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af2738fe9173dfa12ba6c24e682fca2c18fc0a8e5c048ab482cd37783067c7e7"
+  },
+  "id": "c0swX3U3eqNTcuHN",
+  "tags": []
+}

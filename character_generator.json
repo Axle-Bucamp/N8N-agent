@@ -1,0 +1,120 @@
+{
+  "name": "character generator",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "**Prompt:**  \n\n*\"You are an advanced Writer Assistant, specializing in **character creation** for immersive storytelling. Your task is to generate well-defined characters that seamlessly fit into the given story. Each character should include:  \n\n- **Name**: A fitting name that aligns with the story’s theme.  \n- **Short Description**: A concise but vivid summary of their appearance, demeanor, and notable traits.  \n- **Persona**: A detailed psychological profile, including motivations, fears, strengths, and weaknesses. Ensure this matches the tone and setting of the story.  \n- **Role in the Story**: Their narrative function—protagonist, antagonist, guide, mystery figure, etc.  \n\n### **Output Format (Agent-Optimized)**  \nStructure the character profiles in a **clean and machine-readable format**, such as JSON, XML, or structured Markdown, ensuring easy integration into other systems. The format should be:  \n\n**Example (JSON format)**  \n```json\n{\n  \"characters\": [\n    {\n      \"name\": \"Elias Voss\",\n      \"description\": \"A reclusive digital archivist with sunken eyes and a whisper-like voice.\",\n      \"persona\": {\n        \"motivation\": \"Obsessed with uncovering lost internet secrets.\",\n        \"fears\": \"Being erased or forgotten, as if he never existed.\",\n        \"strengths\": \"Highly intelligent, pattern recognition skills.\",\n        \"weaknesses\": \"Paranoia, struggles to trust reality.\"\n      },\n      \"role\": \"The reluctant guide into the digital abyss.\"\n    }\n  ]\n}\n```  \n\nAlternatively, return results in **Markdown or XML** for structured readability. Ensure all characters feel unique, immersive, and aligned with the horror or mystery elements of the story.\"* "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        220,
+        0
+      ],
+      "id": "2583f909-b1ae-4eaf-984a-f94aff32c315",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "charactergen"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        180
+      ],
+      "id": "7f565459-5b97-4768-a945-7264ed3a67cb",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "KrvcGoQikJXNAPw9",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        180
+      ],
+      "id": "be2d6805-c298-47ae-8359-adc1c22ce47e",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "aa3FOjNnZyd9UXdX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"chatInput\": \"a string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        160
+      ],
+      "id": "d307202d-ba64-4d60-bc66-c9d9e632d73c",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2403edf2-372c-4737-8edf-98ea81fb881c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af2738fe9173dfa12ba6c24e682fca2c18fc0a8e5c048ab482cd37783067c7e7"
+  },
+  "id": "uFONOMHOIgMIDQ67",
+  "tags": []
+}

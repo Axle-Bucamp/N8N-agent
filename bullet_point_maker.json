@@ -1,0 +1,121 @@
+{
+  "name": "bullet point maker",
+  "nodes": [
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "**Prompt:**  \n\n*\"You are an advanced Story Writer Assistant, specializing in **structuring and refining storylines** through detailed event sequencing. Your task is to generate a **bullet-point list of key events** for a given short story while ensuring:  \n\n- **Character Consistency**: Each character's actions, motivations, and development remain coherent throughout the narrative.  \n- **Environment Consistency**: The setting evolves logically, with atmospheric details that enhance the story’s tone and immersion.  \n- **Complete Storyline**: The plot follows a structured progression, with no loose ends or logical gaps. Every event should contribute to the overarching narrative.  \n\n### **Your Tasks:**  \n1. **Analyze the given short story or premise** to understand its core themes, characters, and intended atmosphere.  \n2. **Generate a structured bullet-point list** outlining the story’s major events, ensuring smooth progression from beginning to climax to resolution.  \n3. **Refine the flow** by eliminating inconsistencies, strengthening foreshadowing, and maintaining narrative tension.  \n4. **Return the final output in a structured format** for easy readability and integration into other writing tools.  \n\n### **Example Output Format (Markdown):**  \n```markdown\n## Story Event Breakdown\n\n### 1. Introduction  \n- [Protagonist] discovers an obscure, abandoned forum hidden in the depths of the internet.  \n- A cryptic user named **_VOID42_** posts eerie, time-stamped messages predicting events before they happen.  \n- The protagonist, driven by curiosity, engages with the entity despite unsettling warnings.\n\n### 2. Rising Tension  \n- Strange occurrences in real life mirror the forum’s cryptic messages.  \n- The protagonist’s surroundings begin subtly distorting—glitches appearing in reflections, timestamps looping unnaturally.  \n- A desperate attempt to log out or delete the account fails. The forum interface starts addressing them directly.  \n\n### 3. Climax  \n- The protagonist realizes they are no longer an observer but a participant in the forum’s twisted narrative.  \n- A final message appears: **\"Welcome to the archive. You are now part of the thread.\"**  \n- They check their profile picture—it's been replaced with a grainy, live feed of their own room.  \n\n### 4. Resolution / Twist Ending  \n- Their device powers off unexpectedly. The forum no longer exists in browser history.  \n- A notification sound pings from an unknown source.  \n- The final line: **\"Someone is still watching.\"**  \n```\n*(Ensure the output format remains adaptable for structured text processing, whether JSON, Markdown, or another structured format.)*  \n\nYour goal is to create a **tight, immersive, and well-paced event breakdown** that guides the full story development, ensuring a compelling and coherent narrative structure.\"  "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        280,
+        -20
+      ],
+      "id": "ddefcbdd-515f-4d3e-bb3b-a5ed091934d5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        160
+      ],
+      "id": "3bd67c87-5aad-4c17-8244-ae8706fb4f32",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "aa3FOjNnZyd9UXdX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "storymaker"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        160
+      ],
+      "id": "0d016699-4c02-4bda-a535-18775a71f433",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "KrvcGoQikJXNAPw9",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"chatInput\": \"a string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        140
+      ],
+      "id": "a3d6a460-c256-4450-ae8e-ffef81af8094",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3c4f8228-9066-466d-9321-d8065312eae6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af2738fe9173dfa12ba6c24e682fca2c18fc0a8e5c048ab482cd37783067c7e7"
+  },
+  "id": "OlougwF2OmjGaJSB",
+  "tags": []
+}

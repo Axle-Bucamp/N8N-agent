@@ -1,0 +1,224 @@
+{
+  "name": "git file edit or create tool",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"code\": \"a string\",\n  \"filename\": \"a string\",\n  \"owner\" : \"a string\",\n  \"repo\" : \"a string\",\n  \"message\" : \"a string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -760,
+        200
+      ],
+      "id": "c1d7b70b-7a6b-4c61-9c77-595fbc622570",
+      "name": "Input"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $('Input').item.json.owner }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $('Input').item.json.repo }}",
+          "mode": "name"
+        },
+        "filePath": "={{ $('Input').item.json.filename }}",
+        "fileContent": "={{ $('Input').item.json.code }}",
+        "commitMessage": "={{ $('Input').item.json.message }}"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        140
+      ],
+      "id": "6d0b77af-b469-49cb-8a0c-1bfde0e78304",
+      "name": "edit",
+      "alwaysOutputData": false,
+      "credentials": {
+        "githubApi": {
+          "id": "D7i7WvjGhVX9VygB",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $('Input').item.json.owner }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $('Input').item.json.repo }}",
+          "mode": "name"
+        },
+        "filePath": "={{ $('Input').item.json.filename }}",
+        "fileContent": "={{ $('Input').item.json.code }}",
+        "commitMessage": "={{ $('Input').item.json.message }}"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        300
+      ],
+      "id": "cacabdef-840f-482a-90b3-bd0f2e276083",
+      "name": "create",
+      "alwaysOutputData": false,
+      "credentials": {
+        "githubApi": {
+          "id": "D7i7WvjGhVX9VygB",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd99c59d-30f0-486c-87bf-580b77960664",
+              "name": "reponse",
+              "value": "file commited",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        300
+      ],
+      "id": "1f18ab61-337e-416c-a29b-eb1723ae1703",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd99c59d-30f0-486c-87bf-580b77960664",
+              "name": "reponse",
+              "value": "file commited",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        140
+      ],
+      "id": "70c8a3ee-7625-4169-9b34-e44ef22449bb",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "reponse",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -140,
+        200
+      ],
+      "id": "056d0db4-083c-498a-8c0b-934f8cfc78d5",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "edit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "create",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c62a88d0-58ea-4ad3-8216-4057e6c4d576",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8abfe2814f2845844f48b2e72298c114bfeb9f78ae1619d5986dd41f958e04b"
+  },
+  "id": "y8oV6Zx8xECftMV0",
+  "tags": []
+}

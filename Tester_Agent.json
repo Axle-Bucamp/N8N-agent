@@ -1,0 +1,376 @@
+{
+  "name": "Tester Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"repo\":  \"a string\",\n  \"user\":  \"a string\",\n  \"request\":  \"a string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        -100
+      ],
+      "id": "5d2af6a0-b63a-41cf-ac5f-de5ae8a1d616",
+      "name": "Workflow Input Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.request }}",
+        "options": {
+          "systemMessage": "As a tester assistant you write the perfect pytest code to test the request based on the provided repository code."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -100,
+        -100
+      ],
+      "id": "ed2c2096-ea11-4aa4-bbbd-8d3283d4ef15",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        -120,
+        80
+      ],
+      "id": "c78831b8-fb95-4852-a9cc-da13e66f2818",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "vMDMvuW7tKN8VGpQ",
+          "name": "Anthropic account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.repo }}-tester"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        -20,
+        80
+      ],
+      "id": "595808f2-2c38-424b-b5d7-1b8f7ad69a5f",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "7g5xiZeg4pocgptl",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "RetreiveCodeFromGithubRepo",
+        "description": "get any published data on the tested repository.",
+        "workflowId": {
+          "__rl": true,
+          "value": "rDEHLjDKxsLFNYO1",
+          "mode": "list",
+          "cachedResultName": "Git hub retreiver"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "repoName": "={{ $json.repo }}",
+            "request": "={{ $json.user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "repoName",
+              "displayName": "repoName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "request",
+              "displayName": "request",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        120,
+        80
+      ],
+      "id": "a7c28029-ec32-4405-ba4c-e904cfd1497f",
+      "name": "QA retreiver"
+    },
+    {
+      "parameters": {
+        "name": "WriteFileGit",
+        "description": "write file to git hub",
+        "workflowId": {
+          "__rl": true,
+          "value": "y8oV6Zx8xECftMV0",
+          "mode": "list",
+          "cachedResultName": "git file edit or create tool"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "code": "={{ $fromAI(\"code\", \"code\", \"string\") }}",
+            "filename": "={{ $fromAI(\"filename\", \"filename\", \"string\") }}",
+            "message": "={{ $fromAI(\"message\", \"message\", \"string\") }}",
+            "repo": "={{ $json.repo }}",
+            "owner": "={{ $json.user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "code",
+              "displayName": "code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "filename",
+              "displayName": "filename",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "owner",
+              "displayName": "owner",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "repo",
+              "displayName": "repo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        260,
+        80
+      ],
+      "id": "f9bf4758-29c7-4ede-a6ef-fa0f862bd695",
+      "name": "writefile"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        400,
+        60
+      ],
+      "id": "1494aeb1-0886-4cf7-a8fe-fe4cc2ec11b5",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "u1fSjVbmLNs8pzHC",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "formTitle": "Make a new project",
+        "formDescription": "generate a git hub project based on your request (repo must exist)",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "repo",
+              "placeholder": "hygdra-agency",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "user",
+              "placeholder": "Axle-Bucamp",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "request",
+              "placeholder": "enhance the agent system",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -340,
+        -260
+      ],
+      "id": "88f6245b-b740-48bc-914a-b8aee08c5414",
+      "name": "On form submission",
+      "webhookId": "ab6c278d-97b4-410e-984b-30502f151781",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "YKRX7kvKwPkJKoIq",
+          "name": "testing kitten"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Workflow Input Trigger": [
+      {
+        "json": {
+          "repo": "hygdra-agency",
+          "user": "Axle-Bucamp",
+          "request": "write the test for the API functions"
+        }
+      }
+    ],
+    "On form submission": [
+      {
+        "json": {
+          "repo": "hygdra-agency",
+          "user": "Axle-Bucamp",
+          "request": "enhance the agent system"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Workflow Input Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA retreiver": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "writefile": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b60ed6d5-f9d9-4d3f-8e55-c14a0053ca9e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8abfe2814f2845844f48b2e72298c114bfeb9f78ae1619d5986dd41f958e04b"
+  },
+  "id": "kIsffXwvjhnomNBK",
+  "tags": []
+}

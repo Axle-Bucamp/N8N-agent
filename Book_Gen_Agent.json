@@ -1,0 +1,652 @@
+{
+  "name": "Book Gen Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.chatInput}}",
+        "options": {
+          "systemMessage": "As a book writer genius, you create innovative story line following the given context. You decompose the given request in chapter and enhance it to make it a really good book toying with the style rules.\n\nwrite 20 chapter title and description about this story. Each chapter is separated using this regex /\\*\\*Chapter (\\d+): \\\"(.*?)\\\"\\*\\*\\n(.*?)\\n\\n/gs"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -280,
+        -220
+      ],
+      "id": "aa553487-76e6-454e-9618-f71e3ba26e22",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -280,
+        -40
+      ],
+      "id": "6b9b06d8-f06b-4599-8d62-56aaa2e27a40",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49lvNKuQyoVV0ePw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        -180,
+        -40
+      ],
+      "id": "cf50dcf8-b058-447f-b88c-26871a2ef90d",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "7g5xiZeg4pocgptl",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=chapter number {{ $json.number }} : title [{{ $json.title }}]\n\n{{ $json.description }}",
+        "options": {
+          "systemMessage": "as a world generator for book you create or use persistent places with specific ambiance to match the chapter and story event. Return the place description."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        520,
+        -520
+      ],
+      "id": "db18be23-728e-4012-b920-23913122b3bd",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        540,
+        -320
+      ],
+      "id": "32baea47-d49c-4595-a0b7-16b0929b9cde",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49lvNKuQyoVV0ePw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=world-gen-{{ $('When chat message received').item.json.sessionID }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        660,
+        -320
+      ],
+      "id": "48045bb0-b5b4-4997-b60b-c3d4b7e54bad",
+      "name": "Zep1",
+      "credentials": {
+        "zepApi": {
+          "id": "7g5xiZeg4pocgptl",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=places description : {{ $json.output }}\n\nchapter [{{ $('Loop Over Items').item.json.number }}] title : {{ $('Loop Over Items').item.json.title }}\n\ndescription : {{ $('Loop Over Items').item.json.description }}",
+        "options": {
+          "systemMessage": "As a world generator for book you create or use persistent character with specific description to match the chapter and story event. return all the needed character name and description."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        500,
+        -200
+      ],
+      "id": "f97fee53-b41b-4e9f-b32a-0499cba0e336",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -20
+      ],
+      "id": "8c267230-7eb5-47b0-87fe-997f4f58248b",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49lvNKuQyoVV0ePw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=persistant-character-gen-{{ $('When chat message received').item.json.sessionID }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        600,
+        -20
+      ],
+      "id": "a974cef6-cec7-4e4f-88e4-d81e709c0e1a",
+      "name": "Zep2",
+      "credentials": {
+        "zepApi": {
+          "id": "7g5xiZeg4pocgptl",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=character : {{ $json.output }}\nplaces : {{ $('AI Agent1').item.json.output }}\n\nchapter [{{ $('Loop Over Items').item.json.number }}] : {{ $('Loop Over Items').item.json.title }}\n\n{{ $('Loop Over Items').item.json.description }}\n",
+        "options": {
+          "systemMessage": "As a world generator for book you create or use persistent character with specific description to match the chapter and story event. return all the needed character name and description."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        440,
+        120
+      ],
+      "id": "e57af412-9f45-4c00-a0c8-19aed178df36",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=timeline-gen-{{ $('When chat message received').item.json.sessionID }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        520,
+        320
+      ],
+      "id": "da7df72a-6702-4063-898a-533bb7c9dfd0",
+      "name": "Zep3",
+      "credentials": {
+        "zepApi": {
+          "id": "7g5xiZeg4pocgptl",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        400,
+        320
+      ],
+      "id": "a8082588-1ce6-4649-ad73-f7dca978cb31",
+      "name": "Ollama Chat Model3",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49lvNKuQyoVV0ePw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=evemt : {{ $json.output }}\ncharacter : {{ $('AI Agent2').item.json.output }}\nplaces : {{ $('AI Agent1').item.json.output }}\n\nchapter [{{ $('Loop Over Items').item.json.number }}] : {{ $('Loop Over Items').item.json.title }}\n\ncontext : {{ $('Loop Over Items').item.json.description }}",
+        "options": {
+          "systemMessage": "Write the given chapter with a style matching the book. use the given character and event. One chapter make at least 1000 words."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        840,
+        120
+      ],
+      "id": "7cce52db-eb96-4592-8d54-5a0421446938",
+      "name": "AI Agent4"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=chapter-gen-{{ $('When chat message received').item.json.sessionID }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        940,
+        320
+      ],
+      "id": "69973de4-fe88-456a-a1b6-6a377209af93",
+      "name": "Zep4",
+      "credentials": {
+        "zepApi": {
+          "id": "7g5xiZeg4pocgptl",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        820,
+        320
+      ],
+      "id": "96b285a0-83ba-4787-904e-4958a1d71342",
+      "name": "Ollama Chat Model4",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49lvNKuQyoVV0ePw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "module.exports = {\n     run(text) {\n        const chapterRegex = /\\*\\*Chapter (\\d+): \\\"(.*?)\\\"\\*\\*\\n(.*?)\\n\\n/gs;\n        let matches;\n        const chapters = [];\n\n        while ((matches = chapterRegex.exec(text)) !== null) {\n            chapters.push({\n                number: parseInt(matches[1], 10),\n                title: matches[2],\n                description: matches[3].trim()\n            });\n        }\n\n        return chapters;\n    }\n};\n\nlet text =  $('AI Agent').first().json.output.toString();\nconst chapters = module.exports.run(text);\nreturn chapters;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        20,
+        -340
+      ],
+      "id": "44c2720a-5aa6-426c-8edf-3b91c1e52edf",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "batchSize": "=1",
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        280,
+        -600
+      ],
+      "id": "38d23709-ac52-496f-9dbb-628798b1cf08",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "options": {
+          "allowedFilesMimeTypes": "*.txt"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -460,
+        -240
+      ],
+      "id": "1b1ad027-415f-4e28-9e6a-c1581459189a",
+      "name": "When chat message received",
+      "webhookId": "553ad3e4-ca89-4099-8496-196518c54833"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {
+          "encoding": "utf8",
+          "fileName": "={{ $('Loop Over Items').item.json.number }}-{{ $('Loop Over Items').item.json.title }}.txt"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        -40
+      ],
+      "id": "e66a271f-e24a-4764-917d-f30c73219d1d",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f989a49a-4071-4205-9b58-4770c886c33e",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "a7086c0e-6136-44f5-b48d-f0910007c21e",
+              "name": "chapter-number",
+              "value": "={{ $('Code').item.json.number }}",
+              "type": "number"
+            },
+            {
+              "id": "8162432a-1f9b-42eb-9035-d33b0735d1cc",
+              "name": "title",
+              "value": "={{ $('Code').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "79127c7e-46c9-4738-889a-cb136ff9c0a0",
+              "name": "short-description",
+              "value": "={{ $('Code').item.json.description }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        120
+      ],
+      "id": "d8f3f012-18fb-450c-9800-990664ad3071",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1400,
+        100
+      ],
+      "id": "51d97ab8-ce25-48d5-882e-4ca3e47e0380",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep4": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent4": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1bf65199-b94c-4f86-b6d7-7284df2dcd08",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8abfe2814f2845844f48b2e72298c114bfeb9f78ae1619d5986dd41f958e04b"
+  },
+  "id": "bedB7gOlFZLRhEpq",
+  "tags": []
+}

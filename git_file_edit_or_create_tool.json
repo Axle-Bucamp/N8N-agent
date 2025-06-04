@@ -1,0 +1,245 @@
+{
+  "name": "git file edit or create tool",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"code\": \"a string\",\n  \"filename\": \"a string\",\n  \"owner\" : \"a string\",\n  \"repo\" : \"a string\",\n  \"message\" : \"a string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -780,
+        140
+      ],
+      "id": "c1d7b70b-7a6b-4c61-9c77-595fbc622570",
+      "name": "Input"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "name",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        140
+      ],
+      "id": "6fe4048e-9f47-4950-af40-0539fe7531aa",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "list",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.owner }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.repo }}",
+          "mode": "name"
+        },
+        "filePath": "={{ $json.filename.replace(/\\/[^/]+$/, '') }}"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        -620,
+        140
+      ],
+      "id": "6d41215c-012d-4102-95d8-68550ffde2eb",
+      "name": "list file",
+      "alwaysOutputData": true,
+      "credentials": {
+        "githubApi": {
+          "id": "D7i7WvjGhVX9VygB",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7ffc8a68-30bd-4fba-9a53-37cab964395c",
+              "leftValue": "={{ $json.data.map(item => item[\"name\"]) }}",
+              "rightValue": "={{ $('Input').item.json.filename.split('/').pop()  }}",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -300,
+        140
+      ],
+      "id": "aa239e51-8664-4a88-bd20-a9d568490f5d",
+      "name": "If file exist"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $('Input').item.json.owner }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $('Input').item.json.repo }}",
+          "mode": "name"
+        },
+        "filePath": "={{ $('Input').item.json.filename }}",
+        "fileContent": "={{ $('Input').item.json.code }}",
+        "commitMessage": "={{ $('Input').item.json.message }}"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        60
+      ],
+      "id": "6d0b77af-b469-49cb-8a0c-1bfde0e78304",
+      "name": "edit",
+      "alwaysOutputData": false,
+      "credentials": {
+        "githubApi": {
+          "id": "D7i7WvjGhVX9VygB",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $('Input').item.json.owner }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $('Input').item.json.repo }}",
+          "mode": "name"
+        },
+        "filePath": "={{ $('Input').item.json.filename }}",
+        "fileContent": "={{ $('Input').item.json.code }}",
+        "commitMessage": "={{ $('Input').item.json.message }}"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        220
+      ],
+      "id": "cacabdef-840f-482a-90b3-bd0f2e276083",
+      "name": "create",
+      "alwaysOutputData": false,
+      "credentials": {
+        "githubApi": {
+          "id": "D7i7WvjGhVX9VygB",
+          "name": "GitHub account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "list file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "If file exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "list file": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If file exist": {
+      "main": [
+        [
+          {
+            "node": "edit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "create",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit": {
+      "main": [
+        []
+      ]
+    },
+    "create": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ff874b14-8754-457c-9132-8dbdd372952b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8abfe2814f2845844f48b2e72298c114bfeb9f78ae1619d5986dd41f958e04b"
+  },
+  "id": "y8oV6Zx8xECftMV0",
+  "tags": []
+}

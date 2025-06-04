@@ -1,0 +1,512 @@
+{
+  "name": "git main Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "formTitle": "git hub agent",
+        "formDescription": "what is your request and which repository is concern.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "request",
+              "placeholder": "build me an API that  is so cool",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "repo",
+              "placeholder": "funapi",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "user",
+              "placeholder": "memyselfandi",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        -560
+      ],
+      "id": "45661c30-b696-428f-8647-165dff01b3a7",
+      "name": "On form submission",
+      "webhookId": "0e2392aa-6150-4cd8-9800-2ee96e26c7f5",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "2F4pO0iaRHIjeMGY",
+          "name": "devkitty"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('On form submission').item.json.request }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        140,
+        -300
+      ],
+      "id": "bc3c28f3-b6c5-4432-b22b-64a203390753",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        -100
+      ],
+      "id": "35af28e8-ff74-4346-9399-da7a37b9ee40",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "OO9FE0mAgzR4WWEl",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('On form submission').item.json.repo }}-1"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        -100
+      ],
+      "id": "43b678f4-3cfa-4296-8ba2-273f701167f7",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "7g5xiZeg4pocgptl",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "vjFt7keJagF22gMl",
+          "mode": "list",
+          "cachedResultName": "git store"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "repoName": "={{ $('On form submission').item.json.repo }}",
+            "repoOwner": "={{ $('On form submission').item.json.user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "repoName",
+              "displayName": "repoName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "repoOwner",
+              "displayName": "repoOwner",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -60,
+        -300
+      ],
+      "id": "c96ced59-e004-4fb1-877a-a4982562f452",
+      "name": "Repo fetch and store"
+    },
+    {
+      "parameters": {
+        "toolDescription": "get pypi module main page",
+        "url": "https://pypi.org/project/{path}",
+        "optimizeResponse": true,
+        "responseType": "html",
+        "onlyContent": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        -160
+      ],
+      "id": "16ead492-09fe-4be6-b717-7a85433c8810",
+      "name": "pypi infos"
+    },
+    {
+      "parameters": {
+        "resource": "user",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.user }}",
+          "mode": "name"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        -560
+      ],
+      "id": "3e0d806b-4d93-4de8-bd61-6b38c47acf27",
+      "name": "GitHub",
+      "credentials": {
+        "githubApi": {
+          "id": "D7i7WvjGhVX9VygB",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6144ad99-8d3d-4402-adb2-c18dd4797676",
+              "leftValue": "={{ $json.allname.map(item => item[\"name\"]) }}",
+              "rightValue": "={{ $('On form submission').item.json.repo }}",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        260,
+        -560
+      ],
+      "id": "a73ff27b-3fbc-40c7-9c6a-37431ca77719",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "=allname",
+        "include": "specifiedFields",
+        "fieldsToInclude": "name",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -560
+      ],
+      "id": "a73fa063-4065-4338-a7b2-ac04cb216230",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "name": "RetreiveDocumentBasedOnRequest",
+        "description": "Retreive any componant needed to complete your request.",
+        "workflowId": {
+          "__rl": true,
+          "value": "rDEHLjDKxsLFNYO1",
+          "mode": "list",
+          "cachedResultName": "Git hub retreiver"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "repoName": "={{ $('On form submission').item.json.repo }}",
+            "request": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('request', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "repoName",
+              "displayName": "repoName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "request",
+              "displayName": "request",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        380,
+        -120
+      ],
+      "id": "e9aa7b45-ae96-4bd5-86a1-e0900b73cba1",
+      "name": "QA retreiver"
+    },
+    {
+      "parameters": {
+        "name": "CreateOrEditFile",
+        "description": "Create or edit a file in the repository.",
+        "workflowId": {
+          "__rl": true,
+          "value": "y8oV6Zx8xECftMV0",
+          "mode": "list",
+          "cachedResultName": "git file edit or create tool"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "owner": "={{ $('On form submission').item.json.user }}",
+            "repo": "={{ $('On form submission').item.json.repo }}",
+            "message": "={{$fromAI('message', ``, 'string') }}",
+            "filename": "={{$fromAI('filename', ``, 'string') }}",
+            "code": "={{$fromAI('code', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "code",
+              "displayName": "code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "filename",
+              "displayName": "filename",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "owner",
+              "displayName": "owner",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "repo",
+              "displayName": "repo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        280,
+        -80
+      ],
+      "id": "32e95908-7313-4b7d-999b-4fc18c64d990",
+      "name": "create or edit file"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "request": "generate a python chess game as API using fastapi and jinja2",
+          "repo": "MateISCheck",
+          "user": "Axle-Bucamp"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Repo fetch and store": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pypi infos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Repo fetch and store",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA retreiver": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create or edit file": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8ecee7a0-3822-4ce0-ad33-258c9c34d11d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8abfe2814f2845844f48b2e72298c114bfeb9f78ae1619d5986dd41f958e04b"
+  },
+  "id": "hK5IWwKYlsMG9NUe",
+  "tags": []
+}

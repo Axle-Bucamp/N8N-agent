@@ -1,0 +1,381 @@
+{
+  "name": "git main Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.request }}\n\n# tips :\n- use the retriever to get older and new git code.\n- save your progress using the CreateOrEditFile",
+        "options": {
+          "systemMessage": "You are a helpful dev expert assistant. You help by providing understandable and functional code. You work file by file and save your progress."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        140,
+        -320
+      ],
+      "id": "bc3c28f3-b6c5-4432-b22b-64a203390753",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.repo }}-coder"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        -120
+      ],
+      "id": "43b678f4-3cfa-4296-8ba2-273f701167f7",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "7g5xiZeg4pocgptl",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "RetreiveDocumentBasedOnRequest",
+        "description": "Retreive any componant needed to complete your request.",
+        "workflowId": {
+          "__rl": true,
+          "value": "rDEHLjDKxsLFNYO1",
+          "mode": "list",
+          "cachedResultName": "Git hub retreiver"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "repoName": "={{ $json.repo }}",
+            "request": "={{  $fromAI('request', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "repoName",
+              "displayName": "repoName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "request",
+              "displayName": "request",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        260,
+        -120
+      ],
+      "id": "e9aa7b45-ae96-4bd5-86a1-e0900b73cba1",
+      "name": "QA retreiver"
+    },
+    {
+      "parameters": {
+        "name": "CreateOrEditFile",
+        "description": "Create or edit a file in the repository.",
+        "workflowId": {
+          "__rl": true,
+          "value": "y8oV6Zx8xECftMV0",
+          "mode": "list",
+          "cachedResultName": "git file edit or create tool"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "owner": "={{ $json.user }}",
+            "repo": "={{ $json.repo }}",
+            "message": "={{$fromAI('message', ``, 'string') }}",
+            "filename": "={{$fromAI('filename', ``, 'string') }}",
+            "code": "={{$fromAI('code', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "code",
+              "displayName": "code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "filename",
+              "displayName": "filename",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "owner",
+              "displayName": "owner",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "repo",
+              "displayName": "repo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -120
+      ],
+      "id": "32e95908-7313-4b7d-999b-4fc18c64d990",
+      "name": "create or edit file"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        -120
+      ],
+      "id": "57bb10b4-c9d5-4d27-aea5-ffc9dacd93c3",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "vMDMvuW7tKN8VGpQ",
+          "name": "Anthropic account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"request\": \"a string\",\n  \"repo\": \"a string\",\n  \"user\": \"a string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -60,
+        -320
+      ],
+      "id": "d0df1373-97c1-41e8-8815-2a5a6a774193",
+      "name": "Workflow Input Trigger"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -120
+      ],
+      "id": "1b0a9b79-6133-4446-b67c-71fe87080b86",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "u1fSjVbmLNs8pzHC",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "formTitle": "Make a new project",
+        "formDescription": "generate a git hub project based on your request (repo must exist)",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "repo",
+              "placeholder": "hygdra-agency",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "user",
+              "placeholder": "Axle-Bucamp",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "request",
+              "placeholder": "enhance the agent system",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -60,
+        -440
+      ],
+      "id": "32fcb9cf-05df-40c9-850f-4d24cdb73fd3",
+      "name": "On form submission",
+      "webhookId": "ab6c278d-97b4-410e-984b-30502f151781",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "YKRX7kvKwPkJKoIq",
+          "name": "testing kitten"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Workflow Input Trigger": [
+      {
+        "json": {
+          "request": "a string",
+          "repo": "a string",
+          "user": "a string"
+        }
+      }
+    ],
+    "On form submission": [
+      {
+        "json": {
+          "repo": "hygdra-agency",
+          "user": "Axle-Bucamp",
+          "request": "enhance the agent system"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA retreiver": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create or edit file": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Input Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c809b16f-ccbb-483f-91c9-fc97314ae8d4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8abfe2814f2845844f48b2e72298c114bfeb9f78ae1619d5986dd41f958e04b"
+  },
+  "id": "hK5IWwKYlsMG9NUe",
+  "tags": []
+}

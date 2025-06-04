@@ -1,0 +1,170 @@
+{
+  "name": "git store",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"repoName\": \"a string\",\n  \"repoOwner\": \"a string\"\n}"
+      },
+      "id": "fd5eaaf0-6962-488f-a18f-d8e4aebc6101",
+      "typeVersion": 1.1,
+      "name": "Workflow Input Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        140,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        300,
+        80
+      ],
+      "id": "2f855bd3-cd33-40ed-9dd5-2b0a80340d36",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "49lvNKuQyoVV0ePw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "repository": "=https://github.com/{{ $json.repoOwner }}/{{ $json.repoName}}",
+        "additionalOptions": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentGithubLoader",
+      "typeVersion": 1,
+      "position": [
+        400,
+        40
+      ],
+      "id": "3208526d-c67f-422a-ae09-abbccd75b3dc",
+      "name": "GitHub Document Loader",
+      "credentials": {
+        "githubApi": {
+          "id": "D7i7WvjGhVX9VygB",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "typeVersion": 1,
+      "position": [
+        560,
+        180
+      ],
+      "id": "8f1f4309-7d33-4045-b5b4-2ce926a6e702",
+      "name": "Token Splitter"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": "={{ $json.repoName }}",
+        "clearStore": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1,
+      "position": [
+        340,
+        -120
+      ],
+      "id": "8f32c5af-1acf-4019-a906-da666f6c8db0",
+      "name": "In-Memory Vector Store"
+    }
+  ],
+  "pinData": {
+    "Workflow Input Trigger": [
+      {
+        "json": {
+          "repoName": "OffChainDexTradeSim",
+          "repoOwner": "Axle-Bucamp"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Workflow Input Trigger": {
+      "main": [
+        [
+          {
+            "node": "In-Memory Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "In-Memory Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub Document Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "In-Memory Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "GitHub Document Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "In-Memory Vector Store": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b201d74e-92a5-4e98-8e1a-abb8720374c2",
+  "meta": {
+    "templateId": "VMiAxXa3lCAizGB5f7dVZQSFfg3FtHkdTKvLuupqBls=",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8abfe2814f2845844f48b2e72298c114bfeb9f78ae1619d5986dd41f958e04b"
+  },
+  "id": "vjFt7keJagF22gMl",
+  "tags": [
+    {
+      "createdAt": "2025-02-22T20:19:42.781Z",
+      "updatedAt": "2025-02-22T20:19:42.781Z",
+      "id": "GRAXEXkp6EzCy8cH",
+      "name": "dev"
+    },
+    {
+      "createdAt": "2025-02-22T20:19:45.378Z",
+      "updatedAt": "2025-02-22T20:19:45.378Z",
+      "id": "nqSqxdGZYJLuyydD",
+      "name": "git"
+    }
+  ]
+}

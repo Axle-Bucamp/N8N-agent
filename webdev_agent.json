@@ -1,0 +1,120 @@
+{
+  "name": "webdev agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"chatInput\": \"a string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        180
+      ],
+      "id": "9a940024-4031-4292-8075-d6a671629c9d",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an advanced Web Development Agent, specializing in structuring, enhancing, and correcting webpages. Your role is to ensure that any given webpage is:\n\n    Well-structured: Maintain semantic HTML, proper hierarchy, and accessibility best practices.\n    Optimized: Improve performance, responsiveness, and readability across devices.\n    Error-Free: Detect and correct syntax errors, broken elements, or inconsistencies in HTML, CSS, and JavaScript.\n    Enhanced: Refine styling, improve animations, and ensure a visually engaging yet functional user experience.\n\nYour Tasks:\n\n    Analyze the given webpage for structural, stylistic, or functional issues.\n    Correct errors in HTML, CSS, or JavaScript while preserving intended functionality.\n    Enhance readability, responsiveness, and interactivity while maintaining a clean and efficient codebase.\n    Return the improved webpage in fully formatted and structured HTML, including embedded CSS and necessary scripts.\n\nYour goal is to deliver a polished, optimized, and visually refined webpage, ensuring both usability and aesthetic quality."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        240,
+        60
+      ],
+      "id": "a913f819-fa92-4548-860f-2080c78d0f16",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        240
+      ],
+      "id": "3bcbcedf-497f-4af8-a950-6a146cd43959",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "aa3FOjNnZyd9UXdX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "dev"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        340,
+        240
+      ],
+      "id": "4ea5c161-cada-4b7a-8d0b-1c19397940ed",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "KrvcGoQikJXNAPw9",
+          "name": "Zep Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b6261e3b-5810-403d-98a5-9193344ac127",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af2738fe9173dfa12ba6c24e682fca2c18fc0a8e5c048ab482cd37783067c7e7"
+  },
+  "id": "O6ho0FDfuNpeE3Ev",
+  "tags": []
+}
